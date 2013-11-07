@@ -1,18 +1,29 @@
-import numpy
+%pylab inline
 
-# X is a M x T data matrix (M is the dimensionality and T is the numer of examples)
 def whiten(X):
-    (M,T) = X.shape
-    Covariance = numpy.cov(X)
-    eigenvalues,eigenvectors = numpy.linalg.eig(Covariance) #this only works for square matrices
-    Lambda = eigenvalues*numpy.identity(M) #puts the eigenvalues in a diagonal matrix
-    #print Lambda
-    print eigenvectors
-    y = eigenvectors.T*x
-    
-#X = numpy.matrix('1 1 1; 2 23 45;5 5 12')
-X = numpy.matrix('1; 2; 5')
-#X = numpy.random.random((2,2))
-X = numpy.matrix(X)
-whiten(X)
+    X = numpy.matrix(X)
 
+    #making the data have a zero mean
+    X = X - numpy.mean(X)
+    #calculating the covariance
+    A = numpy.dot(X.T,X)
+    #calculating the eigenvalues and eigenvectors
+    d,V = numpy.linalg.eigh(A)
+
+    epsilon = 0.1    
+    D = numpy.diag(1./numpy.sqrt(d+epsilon))
+        
+    #whitening matrix
+    W = numpy.dot(numpy.dot(V,D),V.T)
+    
+    #whitening the data
+    X = numpy.dot(X,W)
+    return X
+    
+    
+Xwhitened = whiten(X)
+
+Xwhitened = np.squeeze(np.asarray(Xwhitened))
+
+C = numpy.cov(Xwhitened)
+ax = imshow(C, cmap='gray', interpolation='nearest')
